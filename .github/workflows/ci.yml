@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  typecheck-and-test:
+    name: Typecheck + Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        # ANTHROPIC_API_KEY no se setea — los classifier evals (17 tests)
+        # se skipean automáticamente. Los demás (89 unit + integration en stub) corren.
+        run: npm test
+
+  build:
+    name: Mastra build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: typecheck-and-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Mastra build
+        run: npm run build

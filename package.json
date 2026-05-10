@@ -1,0 +1,39 @@
+{
+  "name": "outbound-mp",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Market Paper outbound reactivation agent (Mastra)",
+  "private": true,
+  "scripts": {
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "mastra start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "setup:hubspot": "tsx --env-file=.env src/scripts/setup-hubspot-properties.ts",
+    "seed:sandbox": "tsx --env-file=.env src/scripts/seed-sandbox-deals.ts",
+    "preflight": "tsx --env-file=.env src/scripts/preflight.ts",
+    "smoke": "tsx --env-file=.env src/scripts/smoke.ts",
+    "backfill:canal": "tsx --env-file=.env src/scripts/backfill-canal-original.ts",
+    "metrics": "tsx --env-file=.env src/scripts/metrics.ts",
+    "trigger": "tsx --env-file=.env src/scripts/trigger.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "mastra": "^1.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "@hubspot/api-client": "^13.5.0",
+    "@mastra/core": "^1.32.1",
+    "@mastra/langfuse": "^1.2.5",
+    "@mastra/libsql": "^1.10.0",
+    "@mastra/loggers": "^1.1.1",
+    "@mastra/pg": "^1.10.0",
+    "date-holidays": "^3.28.0",
+    "pino": "^10.3.1",
+    "zod": "^4.4.3"
+  }
+}
