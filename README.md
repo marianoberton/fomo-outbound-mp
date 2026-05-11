@@ -21,7 +21,7 @@ npm run dev
 
 ### Modo stub
 
-Si `HUBSPOT_PRIVATE_APP_TOKEN` está vacío o `STUB_MODE=true`, las tools de HubSpot/Meta no llaman APIs reales — devuelven mocks coherentes con log claro. Útil para validar el flujo end-to-end sin credenciales. **El composer agent sí necesita `ANTHROPIC_API_KEY`** para correr el LLM.
+Si `HUBSPOT_PRIVATE_APP_TOKEN` está vacío o `STUB_MODE=true`, las tools de HubSpot/Meta no llaman APIs reales — devuelven mocks coherentes con log claro. Útil para validar el flujo end-to-end sin credenciales. **El composer agent sí necesita `OPENAI_API_KEY`** para correr el LLM.
 
 ---
 
@@ -86,7 +86,7 @@ Ver [`.env.example`](./.env.example). Las claves necesarias:
 
 | Variable | Para qué |
 |---|---|
-| `ANTHROPIC_API_KEY` | composer + classifier |
+| `OPENAI_API_KEY` | composer + classifier |
 | `HUBSPOT_PRIVATE_APP_TOKEN` | todas las llamadas a HubSpot |
 | `HUBSPOT_PIPELINE_MAYORISTA_ID` | filtrar deals elegibles |
 | `HUBSPOT_STAGE_SEGUIMIENTO_ID` | filtrar deals elegibles + calcular `days_in_seguimiento` |
@@ -250,7 +250,7 @@ DATABASE_URL=postgres://user:pass@host:5432/db
 Repaso de las que sí o sí tienen que estar setteadas:
 
 ```
-ANTHROPIC_API_KEY=
+OPENAI_API_KEY=
 HUBSPOT_PRIVATE_APP_TOKEN=
 HUBSPOT_PIPELINE_MAYORISTA_ID=
 HUBSPOT_STAGE_SEGUIMIENTO_ID=
@@ -396,7 +396,7 @@ Read-only, no muta nada. Chequea:
 
 - Env vars requeridas y opcionales
 - HubSpot: token válido, pipeline + stage existen, deal owner existe, las 12 propiedades custom están creadas, template transaccional reachable
-- Anthropic: tiny call con Haiku para validar la API key
+- OpenAI: GET /v1/models para validar la API key
 - Meta WhatsApp: GET sobre el `phone_id` para validar token + pareja
 
 Output: tabla con `✓ OK / ✗ FAIL / ! WARN / · SKIP` por check. Exit code 0 si todo pasó, 1 si hay fail.
@@ -434,7 +434,7 @@ Si tu cuenta de HubSpot tiene otros deals con `proximo_intento_fecha=hoy`, el wo
 APPROVAL_MODE=on npm run dev
 ```
 
-En Mastra Studio (`/`), invocar el workflow `reactivacion-cadencia` con input `{}`. La tool `listEligibleDeals` devuelve 2 deals stub, el composer corre (necesita `ANTHROPIC_API_KEY`), y el workflow suspende esperando aprobación. Verificar la UI en `/approval-queue`.
+En Mastra Studio (`/`), invocar el workflow `reactivacion-cadencia` con input `{}`. La tool `listEligibleDeals` devuelve 2 deals stub, el composer corre (necesita `OPENAI_API_KEY`), y el workflow suspende esperando aprobación. Verificar la UI en `/approval-queue`.
 
 ### Modo sandbox (HubSpot real, WhatsApp/email stub)
 
@@ -468,7 +468,7 @@ Cobertura actual:
 - `verifyMetaSignature` y `verifyHubspotSignature` — firmas válidas/inválidas, body tampering, timestamp viejo
 - `metrics` — agregación por estado, tasas, montos ARS, parser de ventana temporal
 - **Integration test** del `perDealWorkflow` — 3 escenarios E2E con stub HubSpot/Meta + composer mockeado, sin credenciales
-- **Classifier eval** — 17 casos reales de hot/cold/optout/ambiguous; skipean automáticamente sin `ANTHROPIC_API_KEY`. Para correrlos: `ANTHROPIC_API_KEY=sk-... npm test -- classifier`.
+- **Classifier eval** — 17 casos reales de hot/cold/optout/ambiguous; skipean automáticamente sin `OPENAI_API_KEY`. Para correrlos: `OPENAI_API_KEY=sk-... npm test -- classifier`.
 
 ---
 
@@ -546,4 +546,4 @@ Ver `MP.md` §14:
 - **Concurrency**: `.foreach({ concurrency: 1 })` — secuencial por estabilidad y rate limits.
 - **Logs**: PinoLogger de Mastra; cada step logea `{ dealId, step, action, outcome }`.
 - **Retry**: HubSpot client wrappea cada llamada con backoff exponencial (500ms, 1s, 2s, 4s) sobre 429/5xx.
-- **Modelos**: composer = `anthropic/claude-sonnet-4-6`, classifier = `anthropic/claude-haiku-4-5`. Verificados contra el provider registry de Mastra al implementar.
+- **Modelos**: composer = `openai/gpt-5.5`, classifier = `openai/gpt-5.4-nano`. Verificados contra el provider registry de Mastra al implementar.

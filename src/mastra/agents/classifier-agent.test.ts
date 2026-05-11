@@ -9,7 +9,7 @@
 import { describe, expect, it } from 'vitest';
 import { classifierAgent, ClassificationSchema } from './classifier-agent.js';
 
-const HAS_KEY = !!process.env.ANTHROPIC_API_KEY;
+const HAS_KEY = !!process.env.OPENAI_API_KEY;
 
 async function classify(text: string) {
   const resp = await classifierAgent.generate(text, {
@@ -94,7 +94,7 @@ describe.skipIf(!HAS_KEY)('classifier agent — eval (real LLM)', () => {
 });
 
 describe.skipIf(HAS_KEY)('classifier agent — eval (skipped sin API key)', () => {
-  it('skip placeholder — seteá ANTHROPIC_API_KEY para correr el eval real', () => {
+  it('skip placeholder — seteá OPENAI_API_KEY para correr el eval real', () => {
     expect(HAS_KEY).toBe(false);
   });
 });

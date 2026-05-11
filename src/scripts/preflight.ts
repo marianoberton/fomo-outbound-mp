@@ -20,7 +20,7 @@ const push = (name: string, status: Status, detail = '') =>
 // ---------------------------------------------------------------------------
 
 const REQUIRED_ENV = [
-  'ANTHROPIC_API_KEY',
+  'OPENAI_API_KEY',
   'HUBSPOT_PRIVATE_APP_TOKEN',
   'HUBSPOT_PIPELINE_MAYORISTA_ID',
   'HUBSPOT_STAGE_SEGUIMIENTO_ID',
@@ -145,41 +145,31 @@ async function checkHubspot(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Anthropic
+// OpenAI
 // ---------------------------------------------------------------------------
 
-async function checkAnthropic(): Promise<void> {
-  const key = process.env.ANTHROPIC_API_KEY;
+async function checkOpenAI(): Promise<void> {
+  const key = process.env.OPENAI_API_KEY;
   if (!key) {
-    push('anthropic.key', 'SKIP', 'sin ANTHROPIC_API_KEY');
+    push('openai.key', 'SKIP', 'sin OPENAI_API_KEY');
     return;
   }
-  if (!key.startsWith('sk-ant-')) {
-    push('anthropic.key', 'WARN', 'formato inesperado (no empieza con sk-ant-)');
+  if (!key.startsWith('sk-')) {
+    push('openai.key', 'WARN', 'formato inesperado (no empieza con sk-)');
   }
 
-  // Tiny ping: max_tokens=1, modelo Haiku (más barato).
+  // Tiny ping: GET /v1/models — más barato que un chat completion y valida la key igual.
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        max_tokens: 1,
-        messages: [{ role: 'user', content: 'ok' }],
-      }),
+    const res = await fetch('https://api.openai.com/v1/models', {
+      headers: { Authorization: `Bearer ${key}` },
     });
-    if (res.ok) push('anthropic.connectivity', 'OK', 'API key válida');
+    if (res.ok) push('openai.connectivity', 'OK', 'API key válida');
     else {
       const body = await res.text().catch(() => '');
-      push('anthropic.connectivity', 'FAIL', `${res.status}: ${body.slice(0, 120)}`);
+      push('openai.connectivity', 'FAIL', `${res.status}: ${body.slice(0, 120)}`);
     }
   } catch (err) {
-    push('anthropic.connectivity', 'FAIL', (err as Error).message);
+    push('openai.connectivity', 'FAIL', (err as Error).message);
   }
 }
 
@@ -243,7 +233,7 @@ function render(): boolean {
 
 async function main(): Promise<void> {
   checkEnvVars();
-  await Promise.all([checkHubspot(), checkAnthropic(), checkMeta()]);
+  await Promise.all([checkHubspot(), checkOpenAI(), checkMeta()]);
   const ok = render();
   process.exit(ok ? 0 : 1);
 }

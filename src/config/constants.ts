@@ -47,8 +47,11 @@ export const CONFIG = {
     intento3_cierre: 'mp_intento3_cierre',
   },
   MODELS: {
-    composer: 'anthropic/claude-sonnet-4-6',
-    classifier: 'anthropic/claude-haiku-4-5',
+    // Composer: escribe mensajes B2B en es-AR (4-6 líneas, tono profesional).
+    // gpt-5.5 da buen balance costo/calidad para este nivel de razonamiento.
+    composer: 'openai/gpt-5.5',
+    // Classifier: 4 categorías sobre texto corto, alto volumen → modelo nano.
+    classifier: 'openai/gpt-5.4-nano',
   },
 } as const;
 
