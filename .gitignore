@@ -3,6 +3,8 @@ dist/
 .mastra/
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 .env
 .env.local
 .env.*.local
