@@ -10,3 +10,5 @@ dist/
 .env.*.local
 .DS_Store
 *.log
+PENDIENTES.md
+
