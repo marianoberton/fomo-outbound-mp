@@ -4,6 +4,9 @@
   "type": "module",
   "description": "Market Paper outbound reactivation agent (Mastra)",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "mastra dev",
     "build": "mastra build",
